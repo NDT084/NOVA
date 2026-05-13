@@ -1,22 +1,24 @@
-from app import mysql
+from app import get_db
 from app.utils import encrypt_message, decrypt_message
 
 def save_message(group_id, user_id, content, is_ghost=False):
-    # Si ghost mode, on n'enregistre pas en base
     if is_ghost:
         return None
 
-    cursor = mysql.connection.cursor()
+    db = get_db()
+    cursor = db.cursor()
     encrypted = encrypt_message(content)
     cursor.execute(
         "INSERT INTO messages (group_id, user_id, content, is_ghost) VALUES (%s, %s, %s, %s)",
         (group_id, user_id, encrypted, False)
     )
-    mysql.connection.commit()
+    db.commit()
     cursor.close()
+    db.close()
 
 def get_group_messages(group_id):
-    cursor = mysql.connection.cursor()
+    db = get_db()
+    cursor = db.cursor()
     cursor.execute("""
         SELECT m.id, u.username, m.content, m.created_at
         FROM messages m
@@ -26,6 +28,7 @@ def get_group_messages(group_id):
     """, (group_id,))
     rows = cursor.fetchall()
     cursor.close()
+    db.close()
 
     messages = []
     for row in rows:

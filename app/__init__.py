@@ -1,26 +1,45 @@
 from flask import Flask
-from flask_mysqldb import MySQL
 from cryptography.fernet import Fernet
 from pusher import Pusher
 from config import Config
+import pymysql
 
-mysql = MySQL()
 fernet = None
 pusher_client = None
+db_config = None
+
+def get_db():
+    config = {
+        'host': db_config['host'],
+        'user': db_config['user'],
+        'password': db_config['password'],
+        'database': db_config['database'],
+        'port': db_config['port'],
+        'ssl': {'ca': db_config['ssl_ca']} if db_config.get('ssl_ca') else None,
+        'cursorclass': pymysql.cursors.Cursor
+    }
+    return pymysql.connect(**config)
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Initialisation MySQL
-    mysql.init_app(app)
+    global fernet, pusher_client, db_config
+
+    # Config base de données
+    db_config = {
+        'host': app.config['MYSQL_HOST'],
+        'user': app.config['MYSQL_USER'],
+        'password': app.config['MYSQL_PASSWORD'],
+        'database': app.config['MYSQL_DB'],
+        'port': app.config['MYSQL_PORT'],
+        'ssl_ca': app.config.get('MYSQL_SSL_CA')
+    }
 
     # Initialisation Fernet
-    global fernet
     fernet = Fernet(app.config['FERNET_KEY'])
 
     # Initialisation Pusher
-    global pusher_client
     pusher_client = Pusher(
         app_id=app.config['PUSHER_APP_ID'],
         key=app.config['PUSHER_KEY'],
