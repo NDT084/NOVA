@@ -252,6 +252,25 @@
         }
     }
 
+    // Gestion du réveil de la page (évite la page blanche et les déconnexions)
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === 'visible') {
+            // 1. Reconnecter Pusher si la connexion a sauté
+            if (pusher && pusher.connection.state === 'disconnected') {
+                console.log("Reconnexion de Pusher...");
+                pusher.connect();
+            }
+            
+            // 2. Vérifier si la session est toujours valide
+            // On tente de charger une petite ressource, si le serveur répond 401/redirect, on refresh
+            fetch(window.location.href, { method: 'HEAD' }).then(response => {
+                if (response.redirected) {
+                    window.location.reload(); // Redirige vers login si la session a expiré
+                }
+            }).catch(() => console.log("Mode hors-ligne détecté"));
+        }
+    });
+
     function appendMessage(data) {
         const isMe = data.username === currentUsername;
         const msgHtml = `
