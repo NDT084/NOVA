@@ -10,10 +10,25 @@
     <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
     
     <style>
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        
+        body {
+            background-color: #06130f;
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(34,197,94,0.16), transparent 24%),
+                radial-gradient(circle at 85% 20%, rgba(20,184,166,0.10), transparent 22%),
+                radial-gradient(circle at 70% 85%, rgba(16,185,129,0.12), transparent 26%),
+                radial-gradient(circle at 30% 80%, rgba(14,165,233,0.06), transparent 20%),
+                linear-gradient(135deg, #04110d 0%, #071b15 42%, #050f0c 100%);
+        }
+
+        .bg-pattern {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.55;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M35 63c0-14 11-25 25-25h37c14 0 25 11 25 25v18c0 14-11 25-25 25H75l-18 15v-15H60c-14 0-25-11-25-25V63z'/%3E%3Cpath d='M150 45h30l20 16v25c0 11-9 20-20 20h-10l-13 10v-10h-7c-11 0-20-9-20-20V65c0-11 9-20 20-20z'/%3E%3Cpath d='M50 164c0-11 9-20 20-20h30c11 0 20 9 20 20v13c0 11-9 20-20 20H80l-13 10v-10H70c-11 0-20-9-20-20v-13z'/%3E%3Cpath d='M168 152c0-9 7-16 16-16h30c9 0 16 7 16 16v11c0 9-7 16-16 16h-15l-11 8v-8h-4c-9 0-16-7-16-16v-11z'/%3E%3Cpath d='M62 25h10M67 20v10'/%3E%3Cpath d='M201 36h10M206 31v10'/%3E%3Cpath d='M212 196h10M217 191v10'/%3E%3Cpath d='M112 198h10M117 193v10'/%3E%3Cpath d='M30 108h34M30 114h20'/%3E%3Cpath d='M176 103h36M176 109h20'/%3E%3Cpath d='M92 126l9-9 9 9M96 128v18M106 128v18'/%3E%3Cpath d='M184 72l9-9 9 9M188 74v18M198 74v18'/%3E%3Cpath d='M46 44c5 0 9 4 9 9s-4 9-9 9-9-4-9-9 4-9 9-9z'/%3E%3Cpath d='M210 150c5 0 9 4 9 9s-4 9-9 9-9-4-9-9 4-9 9-9z'/%3E%3C/g%3E%3Cg fill='rgba(16,185,129,0.10)'%3E%3Ccircle cx='38' cy='38' r='2.7'/%3E%3Ccircle cx='222' cy='52' r='2.7'/%3E%3Ccircle cx='58' cy='222' r='2.7'/%3E%3Ccircle cx='224' cy='220' r='2.7'/%3E%3Ccircle cx='130' cy='130' r='3.2'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 280px 280px;
+        }
+
         .message-enter { animation: fadeSlideIn 0.2s ease-out forwards; }
         @keyframes fadeSlideIn {
             from { opacity: 0; transform: translateY(8px); }
@@ -26,17 +41,20 @@
             background: rgba(168, 85, 247, 0.03) !important;
         }
 
-        /* Empêche le zoom auto sur iOS lors du focus input */
         @media screen and (max-width: 768px) {
             input { font-size: 16px !important; }
         }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-[#0f172a] text-slate-200 font-sans antialiased overflow-hidden">
+<body class="text-slate-200 font-sans antialiased overflow-hidden relative">
+<div class="absolute inset-0 bg-pattern"></div>
 
-<div class="flex h-dvh w-full overflow-hidden">
-
-    <aside class="w-72 bg-[#0b1120] border-r border-slate-800/60 hidden md:flex flex-col">
+<div class="flex h-dvh w-full overflow-hidden relative z-10">
+    <aside class="w-72 bg-[#0b1120]/90 backdrop-blur-md border-r border-slate-800/60 hidden md:flex flex-col">
         <div class="p-6 flex-1 overflow-y-auto space-y-8">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 rotate-3">
@@ -85,9 +103,8 @@
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-w-0 bg-[#0f172a] relative">
-
-        <header class="h-16 shrink-0 border-b border-slate-800/60 flex items-center justify-between px-4 md:px-6 bg-[#0f172a]/80 backdrop-blur-md z-10">
+    <main class="flex-1 flex flex-col min-w-0 bg-[#0f172a]/70 backdrop-blur-sm relative">
+        <header class="h-16 shrink-0 border-b border-slate-800/60 flex items-center justify-between px-4 md:px-6 bg-[#0f172a]/75 backdrop-blur-md z-10">
             <div class="flex items-center gap-3 min-w-0">
                 <div class="w-8 h-8 md:w-10 md:h-10 shrink-0 rounded-xl bg-slate-800/50 flex items-center justify-center border border-slate-700/50">
                     <span class="text-indigo-400 font-bold">#</span>
@@ -144,7 +161,7 @@
             {% endif %}
         </div>
 
-        <div class="p-4 md:p-6 bg-[#0f172a] border-t border-slate-800/40 shrink-0">
+        <div class="p-4 md:p-6 bg-[#0f172a]/90 border-t border-slate-800/40 shrink-0">
             <div id="inputWrapper" class="flex items-center gap-2 md:gap-3 bg-slate-900/50 border border-slate-800 rounded-2xl p-1.5 md:p-2 focus-within:border-indigo-500/50 transition-all duration-300">
                 <input type="text" id="messageInput" placeholder="Écrire un message..." onkeypress="handleKeyPress(event)"
                     class="flex-1 bg-transparent border-0 outline-none px-3 py-2 text-sm text-white placeholder-slate-500 min-w-0">
@@ -173,7 +190,6 @@
 </div>
 
 <script>
-    // Initialisation
     lucide.createIcons();
     const container = document.getElementById('messagesContainer');
     const currentUsername = "{{ username }}";
@@ -181,7 +197,6 @@
 
     container.scrollTop = container.scrollHeight;
 
-    // Pusher
     const pusher = new Pusher('58f00fbf19aaa60d13f6', { cluster: 'eu' });
     const chatChannel = pusher.subscribe("group-{{ group_id }}");
     chatChannel.bind('new-message', data => appendMessage(data));
@@ -204,7 +219,7 @@
 
     function closeToast() {
         const toast = document.getElementById('novaToast');
-        if(toast) {
+        if (toast) {
             toast.classList.replace('translate-y-0', 'translate-y-12');
             toast.classList.replace('opacity-100', 'opacity-0');
         }
@@ -252,22 +267,16 @@
         }
     }
 
-    // Gestion du réveil de la page (évite la page blanche et les déconnexions)
     document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === 'visible') {
-            // 1. Reconnecter Pusher si la connexion a sauté
             if (pusher && pusher.connection.state === 'disconnected') {
-                console.log("Reconnexion de Pusher...");
                 pusher.connect();
             }
-            
-            // 2. Vérifier si la session est toujours valide
-            // On tente de charger une petite ressource, si le serveur répond 401/redirect, on refresh
             fetch(window.location.href, { method: 'HEAD' }).then(response => {
                 if (response.redirected) {
-                    window.location.reload(); // Redirige vers login si la session a expiré
+                    window.location.reload();
                 }
-            }).catch(() => console.log("Mode hors-ligne détecté"));
+            }).catch(() => {});
         }
     });
 
