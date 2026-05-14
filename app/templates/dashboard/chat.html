@@ -10,6 +10,12 @@
     <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
     
     <style>
+        html, body {
+            height: 100%;
+            overscroll-behavior: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
         body {
             background-color: #06130f;
             background-image:
@@ -18,10 +24,12 @@
                 radial-gradient(circle at 70% 85%, rgba(16,185,129,0.12), transparent 26%),
                 radial-gradient(circle at 30% 80%, rgba(14,165,233,0.06), transparent 20%),
                 linear-gradient(135deg, #04110d 0%, #071b15 42%, #050f0c 100%);
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         .bg-pattern {
-            position: absolute;
+            position: fixed;
             inset: 0;
             pointer-events: none;
             opacity: 0.55;
@@ -43,6 +51,16 @@
 
         @media screen and (max-width: 768px) {
             input { font-size: 16px !important; }
+
+            .mobile-scroll-fix {
+                min-height: 100svh;
+                height: auto;
+            }
+
+            #messagesContainer {
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+            }
         }
 
         ::-webkit-scrollbar { width: 4px; }
@@ -50,10 +68,10 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="text-slate-200 font-sans antialiased overflow-hidden relative">
-<div class="absolute inset-0 bg-pattern"></div>
+<body class="text-slate-200 font-sans antialiased">
+<div class="bg-pattern"></div>
 
-<div class="flex h-dvh w-full overflow-hidden relative z-10">
+<div class="flex min-h-[100svh] w-full relative z-10 mobile-scroll-fix">
     <aside class="w-72 bg-[#0b1120]/90 backdrop-blur-md border-r border-slate-800/60 hidden md:flex flex-col">
         <div class="p-6 flex-1 overflow-y-auto space-y-8">
             <div class="flex items-center gap-3">
