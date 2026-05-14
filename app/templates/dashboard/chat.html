@@ -5,141 +5,138 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NOVA — {{ group_name }}</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="unpkg.com"></script>
-    <script src="pusher.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
+    
     <style>
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-        .message-enter {
-            animation: fadeSlideIn 0.2s ease-out;
-        }
+        .message-enter { animation: fadeSlideIn 0.25s ease-out forwards; }
         @keyframes fadeSlideIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
         .ghost-active {
             border-color: #a855f7 !important;
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.1);
+            background: rgba(168, 85, 247, 0.05) !important;
         }
-        .ghost-active input::placeholder { color: #a855f7 !important; }
     </style>
 </head>
 <body class="bg-[#0f172a] text-slate-200 font-sans antialiased overflow-hidden">
 
 <div class="flex h-screen w-full">
 
-    <!-- Sidebar -->
-    <aside class="w-72 bg-[#0b1120] border-r border-slate-800 hidden md:flex flex-col">
-        <div class="p-6">
-            <!-- Logo -->
-            <div class="flex items-center gap-2 mb-8">
-                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <i data-lucide="zap" class="w-5 h-5 text-white"></i>
+    <aside class="w-72 bg-[#0b1120] border-r border-slate-800/60 hidden md:flex flex-col">
+        <div class="p-6 flex-1 overflow-y-auto">
+            <div class="flex items-center gap-3 mb-10">
+                <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 rotate-3">
+                    <i data-lucide="zap" class="w-5 h-5 text-white fill-white"></i>
                 </div>
                 <h1 class="text-xl font-black tracking-tighter text-white">NOVA</h1>
             </div>
 
-            <!-- Membres actifs -->
-            <div>
-                <p class="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold mb-4">
-                    Membres ({{ members|length }})
-                </p>
-                <div class="space-y-2">
-                    {% for member in members %}
-                    <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-800/40 transition">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-[11px] font-bold">
-                            {{ member[1][:2].upper() }}
+            <div class="space-y-6">
+                <div>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold mb-4 px-2">
+                        Membres — {{ members|length }}
+                    </p>
+                    <div class="space-y-1">
+                        {% for member in members %}
+                        <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-800/40 transition-all group cursor-default">
+                            <div class="relative">
+                                <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-[11px] font-bold text-white shadow-inner">
+                                    {{ member[1][:2].upper() }}
+                                </div>
+                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-[#0b1120] rounded-full"></span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-300 group-hover:text-white transition-colors truncate">{{ member[1] }}</p>
+                                <p class="text-[10px] text-emerald-500/80 font-medium">En ligne</p>
+                            </div>
+                            {% if member[1] == username %}
+                            <span class="text-[9px] bg-indigo-600/10 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20">vous</span>
+                            {% endif %}
                         </div>
-                        <div>
-                            <p class="text-sm font-medium text-white">{{ member[1] }}</p>
-                            <p class="text-[10px] text-emerald-500 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> En ligne
-                            </p>
-                        </div>
-                        {% if member[1] == username %}
-                        <span class="ml-auto text-[9px] bg-indigo-600/20 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/20">vous</span>
-                        {% endif %}
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
             </div>
         </div>
 
-        <!-- User footer -->
-        <div class="mt-auto p-4 border-t border-slate-800">
-            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800/40 transition cursor-pointer">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold border-2 border-slate-700">
+        <div class="p-4 bg-[#080d1a] border-t border-slate-800/60">
+            <div class="flex items-center gap-3 p-2 rounded-xl bg-slate-800/20 border border-slate-700/30">
+                <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold border border-white/10 shadow-lg">
                     {{ username[:2].upper() }}
                 </div>
-                <div>
-                    <p class="text-sm font-semibold text-white">{{ username }}</p>
-                    <p class="text-[10px] text-emerald-500 flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> En ligne
-                    </p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-white truncate">{{ username }}</p>
+                    <a href="/logout" class="text-[10px] text-slate-500 hover:text-red-400 transition-colors flex items-center gap-1">
+                        <i data-lucide="power" class="w-3 h-3"></i> Déconnexion
+                    </a>
                 </div>
-                <a href="/logout" class="ml-auto text-slate-500 hover:text-red-400 transition">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                </a>
             </div>
-            <a href="/dashboard" class="mt-2 flex items-center gap-2 p-2 text-slate-500 hover:text-slate-300 text-xs transition rounded-lg hover:bg-slate-800/40">
-                <i data-lucide="arrow-left" class="w-3 h-3"></i> Retour au dashboard
+            <a href="/dashboard" class="mt-3 flex items-center justify-center gap-2 p-2 text-slate-400 hover:text-white text-xs transition-all rounded-lg hover:bg-slate-800">
+                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Dashboard
             </a>
         </div>
     </aside>
 
-    <!-- Main -->
-    <main class="flex-1 flex flex-col relative">
+    <main class="flex-1 flex flex-col relative bg-[#0f172a]">
 
-        <!-- Header -->
-        <header class="h-16 border-b border-slate-800 flex items-center justify-between px-8 bg-[#0f172a]/80 backdrop-blur-xl sticky top-0 z-10">
+        <header class="h-16 border-b border-slate-800/60 flex items-center justify-between px-6 bg-[#0f172a]/80 backdrop-blur-md sticky top-0 z-10">
             <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-slate-800/50 flex items-center justify-center border border-slate-700/50">
+                    <span class="text-indigo-400 font-bold">#</span>
+                </div>
                 <div>
-                    <h2 class="font-bold text-white flex items-center gap-2">
-                        <span class="text-slate-500 text-xl">#</span> {{ group_name }}
-                    </h2>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[9px] px-1.5 py-0.5 bg-slate-800 text-slate-400 rounded border border-slate-700 font-mono">{{ invite_code }}</span>
-                        <span class="text-[10px] text-indigo-400 font-medium italic flex items-center gap-1">
-                            <i data-lucide="shield-check" class="w-3 h-3"></i> E2E Encryption Active
+                    <h2 class="font-bold text-white tracking-tight leading-none mb-1">{{ group_name }}</h2>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] px-1.5 py-0.5 bg-slate-800 text-slate-400 rounded font-mono border border-slate-700/50">{{ invite_code }}</span>
+                        <span class="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
+                            <i data-lucide="shield-check" class="w-3 h-3"></i> Chiffré
                         </span>
                     </div>
                 </div>
             </div>
+            
             <div class="flex items-center gap-3">
-                <!-- Ghost Mode toggle -->
                 <button id="ghostBtn" onclick="toggleGhost()"
-                    class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider border transition-all duration-300
-                    bg-slate-800/50 text-slate-400 border-slate-700 hover:border-purple-500 hover:text-purple-400">
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider border transition-all duration-300 bg-slate-800/50 text-slate-400 border-slate-700 hover:border-purple-500/50">
                     <i data-lucide="ghost" class="w-4 h-4"></i>
                     <span id="ghostLabel">Ghost Off</span>
                 </button>
-                <!-- Panic button -->
                 <button onclick="clearChat()"
-                    class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-300">
-                    Panic
+                    class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all duration-200">
+                    Effacer
                 </button>
             </div>
         </header>
 
-        <!-- Messages -->
-        <div id="messagesContainer" class="flex-1 overflow-y-auto p-8 space-y-6">
+        <div id="messagesContainer" class="flex-1 overflow-y-auto p-6 space-y-6">
             {% if messages %}
                 {% for msg in messages %}
-                <div class="flex gap-4 max-w-2xl message-enter {% if msg.username == username %} ml-auto flex-row-reverse {% endif %}">
-                    <div class="w-8 h-8 shrink-0 rounded-lg {% if msg.username == username %} bg-indigo-600 {% else %} bg-slate-800 {% endif %} flex items-center justify-center text-[10px] font-bold">
+                <div class="flex gap-4 max-w-[80%] message-enter {% if msg.username == username %} ml-auto flex-row-reverse {% endif %}">
+                    <div class="w-8 h-8 shrink-0 rounded-lg {% if msg.username == username %} bg-indigo-600 shadow-indigo-500/20 {% else %} bg-slate-800 {% endif %} flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
                         {{ msg.username[:2].upper() }}
                     </div>
-                    <div class="space-y-1 {% if msg.username == username %} text-right {% endif %}">
-                        <div class="flex items-center gap-2 {% if msg.username == username %} justify-end {% endif %}">
+                    <div class="flex flex-col {% if msg.username == username %} items-end {% endif %}">
+                        <div class="flex items-center gap-2 mb-1 px-1">
                             <span class="text-xs font-bold {% if msg.username == username %} text-indigo-400 {% else %} text-slate-300 {% endif %}">
-                                {% if msg.username == username %} Vous {% else %} {{ msg.username }} {% endif %}
+                                {{ 'Vous' if msg.username == username else msg.username }}
                             </span>
                             <span class="text-[10px] text-slate-500">{{ msg.created_at[11:16] }}</span>
                         </div>
-                        <div class="p-4 rounded-2xl border leading-relaxed text-sm {% if msg.username == username %} bg-indigo-600 rounded-tr-none text-white border-indigo-400/20 shadow-xl shadow-indigo-500/10 {% else %} bg-slate-800/50 rounded-tl-none text-slate-300 border-slate-700/50 {% endif %}">
+                        <div class="p-4 rounded-2xl border leading-relaxed text-sm shadow-sm
+                            {% if msg.username == username %} 
+                                bg-indigo-600 text-white border-indigo-500/30 rounded-tr-none 
+                            {% else %} 
+                                bg-slate-800/50 text-slate-200 border-slate-700/50 rounded-tl-none 
+                            {% endif %}">
                             {{ msg.content }}
                         </div>
                     </div>
@@ -148,12 +145,11 @@
             {% endif %}
         </div>
 
-        <!-- Input Area -->
-        <div class="p-6 bg-[#0f172a] border-t border-slate-800">
-            <div id="inputWrapper" class="flex items-center gap-3 bg-slate-900/50 border border-slate-800 rounded-2xl p-2 transition-all duration-300">
-                <input type="text" id="messageInput" placeholder="Écrire un message..." onkeypress="handleKeyPress(event)"
+        <div class="p-6 bg-[#0f172a]">
+            <div id="inputWrapper" class="flex items-center gap-3 bg-slate-900/50 border border-slate-800 rounded-2xl p-2 focus-within:border-indigo-500/50 transition-all duration-300">
+                <input type="text" id="messageInput" placeholder="Écrire dans {{ group_name }}..." onkeypress="handleKeyPress(event)"
                     class="flex-1 bg-transparent border-0 outline-none px-4 py-2 text-sm text-white placeholder-slate-500">
-                <button onclick="sendMessage()" class="w-10 h-10 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center transition shadow-lg shadow-indigo-500/10">
+                <button onclick="sendMessage()" class="w-10 h-10 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center transition-all shadow-lg shadow-indigo-500/20 active:scale-95">
                     <i data-lucide="send" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -161,66 +157,61 @@
     </main>
 </div>
 
-<!-- Container HTML pour les Notifications Toast (Tailwind) -->
-<div class="fixed bottom-6 right-6 z-50 flex flex-col gap-4 pointer-events-none w-80">
-    <div id="novaToast" class="transform translate-y-12 opacity-0 pointer-events-auto bg-slate-900 border border-slate-800 p-4 rounded-xl flex gap-3 shadow-2xl transition-all duration-300 ease-out">
-        <div class="w-8 h-8 shrink-0 bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 rounded-lg flex items-center justify-center">
+<div class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none w-80">
+    <div id="novaToast" class="transform translate-y-12 opacity-0 pointer-events-auto bg-slate-900/95 backdrop-blur-md border border-slate-700 p-4 rounded-2xl flex gap-3 shadow-2xl transition-all duration-500">
+        <div class="w-9 h-9 shrink-0 bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center">
             <i data-lucide="bell" class="w-4 h-4"></i>
         </div>
         <div class="flex-1 min-w-0">
-            <p id="toastTitle" class="text-xs font-bold text-white truncate">Notification</p>
-            <p id="toastMessage" class="text-[11px] text-slate-400 mt-0.5 line-clamp-2"></p>
+            <p id="toastTitle" class="text-xs font-bold text-white truncate"></p>
+            <p id="toastMessage" class="text-[11px] text-slate-400 mt-1 line-clamp-2"></p>
         </div>
-        <button onclick="closeToast()" class="text-slate-500 hover:text-white h-fit p-0.5 transition">
+        <button onclick="closeToast()" class="text-slate-500 hover:text-white self-start p-1 transition-colors">
             <i data-lucide="x" class="w-4 h-4"></i>
         </button>
     </div>
 </div>
 
 <script>
-    // Initialisation des icônes Lucide de base
+    // Init Lucide
     lucide.createIcons();
 
-    let isGhostMode = false;
+    const container = document.getElementById('messagesContainer');
     const currentUsername = "{{ username }}";
+    let isGhostMode = false;
 
-    // 1. UNIQUE INITIALISATION DE PUSHER (Ligne 299 d'origine)
-    const pusher = new Pusher('58f00fbf19aaa60d13f6', {
-        cluster: 'eu'
-    });
+    // Scroll auto à la fin
+    container.scrollTop = container.scrollHeight;
 
-    // Canal d'écoute principal pour la messagerie instantanée
+    // Pusher Setup
+    const pusher = new Pusher('58f00fbf19aaa60d13f6', { cluster: 'eu' });
+
+    // Chat Channel
     const chatChannel = pusher.subscribe("group-{{ group_id }}");
-    chatChannel.bind('new-message', function(data) {
-        appendMessage(data);
-    });
+    chatChannel.bind('new-message', data => appendMessage(data));
 
-    // 2. ABONNEMENT AU CANAL DES NOTIFICATIONS (Sans redéclarer pusher)
+    // Global Notifications
     const notificationChannel = pusher.subscribe('nova-channel');
-    notificationChannel.bind('new-message-event', function(data) {
-        // On n'affiche le toast que si le message vient de quelqu'un d'autre
+    notificationChannel.bind('new-message-event', data => {
         if (!data.title.includes(currentUsername)) {
             showToast(data.title, data.message);
         }
     });
 
     function showToast(title, message) {
+        const toast = document.getElementById('novaToast');
         document.getElementById('toastTitle').innerText = title;
         document.getElementById('toastMessage').innerText = message;
         
-        const toast = document.getElementById('novaToast');
         toast.classList.remove('translate-y-12', 'opacity-0');
         toast.classList.add('translate-y-0', 'opacity-100');
-
         setTimeout(closeToast, 5000);
     }
 
     function closeToast() {
         const toast = document.getElementById('novaToast');
-        if (toast) {
-            toast.classList.remove('translate-y-0', 'opacity-100');
-            toast.classList.add('translate-y-12', 'opacity-0');
-        }
+        toast.classList.replace('translate-y-0', 'translate-y-12');
+        toast.classList.replace('opacity-100', 'opacity-0');
     }
 
     function toggleGhost() {
@@ -230,15 +221,11 @@
         const wrapper = document.getElementById('inputWrapper');
 
         if (isGhostMode) {
-            btn.classList.replace('text-slate-400', 'text-purple-400');
-            btn.classList.replace('border-slate-700', 'border-purple-500');
-            btn.classList.add('bg-purple-500/10');
+            btn.classList.add('bg-purple-500/20', 'text-purple-400', 'border-purple-500');
             label.innerText = "Ghost On";
             wrapper.classList.add('ghost-active');
         } else {
-            btn.classList.replace('text-purple-400', 'text-slate-400');
-            btn.classList.replace('border-purple-500', 'border-slate-700');
-            btn.classList.remove('bg-purple-500/10');
+            btn.classList.remove('bg-purple-500/20', 'text-purple-400', 'border-purple-500');
             label.innerText = "Ghost Off";
             wrapper.classList.remove('ghost-active');
         }
@@ -248,53 +235,56 @@
         if (e.key === 'Enter') sendMessage();
     }
 
-    function sendMessage() {
+    async function sendMessage() {
         const input = document.getElementById('messageInput');
         const content = input.value.trim();
         if (!content) return;
 
         input.value = '';
-
-        fetch('/message/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                group_id: "{{ group_id }}",
-                content: content,
-                ghost: isGhostMode
-            })
-        });
+        try {
+            await fetch('/message/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    group_id: "{{ group_id }}",
+                    content: content,
+                    ghost: isGhostMode
+                })
+            });
+        } catch (err) {
+            console.error("Erreur d'envoi:", err);
+        }
     }
 
     function appendMessage(data) {
-        const container = document.getElementById('messagesContainer');
         const isMe = data.username === currentUsername;
-        
         const msgHtml = `
-            <div class="flex gap-4 max-w-2xl message-enter ${isMe ? 'ml-auto flex-row-reverse' : ''}">
-                <div class="w-8 h-8 shrink-0 rounded-lg ${isMe ? 'bg-indigo-600' : 'bg-slate-800'} flex items-center justify-center text-[10px] font-bold">
+            <div class="flex gap-4 max-w-[80%] message-enter ${isMe ? 'ml-auto flex-row-reverse' : ''}">
+                <div class="w-8 h-8 shrink-0 rounded-lg ${isMe ? 'bg-indigo-600' : 'bg-slate-800'} flex items-center justify-center text-[10px] font-bold text-white">
                     ${data.username.slice(0, 2).toUpperCase()}
                 </div>
-                <div class="space-y-1 ${isMe ? 'text-right' : ''}">
-                    <div class="flex items-center gap-2 ${isMe ? 'justify-end' : ''}">
-                        <span class="text-xs font-bold ${isMe ? 'text-indigo-400' : 'text-slate-300'}">
-                            ${isMe ? 'Vous' : data.username}
-                        </span>
+                <div class="flex flex-col ${isMe ? 'items-end' : ''}">
+                    <div class="flex items-center gap-2 mb-1 px-1">
+                        <span class="text-xs font-bold ${isMe ? 'text-indigo-400' : 'text-slate-300'}">${isMe ? 'Vous' : data.username}</span>
                         <span class="text-[10px] text-slate-500">À l'instant</span>
                     </div>
-                    <div class="p-4 rounded-2xl border leading-relaxed text-sm ${data.ghost ? 'border-purple-500/30 bg-purple-950/20 text-purple-200' : isMe ? 'bg-indigo-600 rounded-tr-none text-white border-indigo-400/20' : 'bg-slate-800/50 rounded-tl-none text-slate-300 border-slate-700/50'}">
+                    <div class="p-4 rounded-2xl border leading-relaxed text-sm shadow-sm
+                        ${data.ghost 
+                            ? 'border-purple-500/40 bg-purple-900/20 text-purple-200' 
+                            : isMe 
+                                ? 'bg-indigo-600 text-white border-indigo-500/30 rounded-tr-none' 
+                                : 'bg-slate-800/50 text-slate-200 border-slate-700/50 rounded-tl-none'}">
                         ${data.content}
                     </div>
                 </div>
-            </div>
-        `;
+            </div>`;
         
         container.insertAdjacentHTML('beforeend', msgHtml);
-        container.scrollTop = container.scrollHeight;
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
     }
 
     function clearChat() {
-        document.getElementById('messagesContainer').innerHTML = '';
+        container.innerHTML = '';
     }
 </script>
 </body>
