@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, g
 from cryptography.fernet import Fernet
 from pusher import Pusher
 from config import Config
@@ -6,35 +6,37 @@ import pymysql
 
 fernet = None
 pusher_client = None
-db_config = None
 
 def get_db():
-    config = {
-        'host': db_config['host'],
-        'user': db_config['user'],
-        'password': db_config['password'],
-        'database': db_config['database'],
-        'port': db_config['port'],
-        'ssl': {'ca': db_config['ssl_ca']} if db_config.get('ssl_ca') else None,
-        'cursorclass': pymysql.cursors.Cursor
-    }
-    return pymysql.connect(**config)
+    # On récupère proprement la config depuis le contexte de l'application Flask active
+    from flask import current_app
+    
+    # Évite de réouvrir une connexion si elle existe déjà pour cette requête
+    if 'db' not in g:
+        config = {
+            'host': current_app.config['MYSQL_HOST'],
+            'user': current_app.config['MYSQL_USER'],
+            'password': current_app.config['MYSQL_PASSWORD'],
+            'database': current_app.config['MYSQL_DB'],
+            'port': int(current_app.config['MYSQL_PORT']),
+            'cursorclass': pymysql.cursors.DictCursor # DictCursor est souvent plus pratique
+        }
+        
+        # Gestion stricte du SSL exigé par Aiven Cloud
+        if current_app.config.get('MYSQL_SSL_CA'):
+            config['ssl'] = {'ca': current_app.config['MYSQL_SSL_CA']}
+        else:
+            config['ssl'] = {'ssl': {}}  # Force le SSL générique si le chemin CA n'est pas fourni
+            
+        g.db = pymysql.connect(**config)
+        
+    return g.db
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    global fernet, pusher_client, db_config
-
-    # Config base de données
-    db_config = {
-        'host': app.config['MYSQL_HOST'],
-        'user': app.config['MYSQL_USER'],
-        'password': app.config['MYSQL_PASSWORD'],
-        'database': app.config['MYSQL_DB'],
-        'port': app.config['MYSQL_PORT'],
-        'ssl_ca': app.config.get('MYSQL_SSL_CA')
-    }
+    global fernet, pusher_client
 
     # Initialisation Fernet
     fernet = Fernet(app.config['FERNET_KEY'])
@@ -47,6 +49,13 @@ def create_app():
         cluster=app.config['PUSHER_CLUSTER'],
         ssl=True
     )
+
+    # Nettoyage automatique des connexions en fin de requête (Crucial pour Vercel)
+    @app.teardown_appcontext
+    def teardown_db(exception):
+        db = g.pop('db', None)
+        if db is not None:
+            db.close()
 
     # Enregistrement des routes
     from app.routes.auth import auth_bp
