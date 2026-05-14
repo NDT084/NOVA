@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NOVA — {{ group_name }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="tailwindcss.com"></script>
+    <script src="unpkg.com"></script>
+    <script src="pusher.com"></script>
     <style>
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -125,14 +126,10 @@
 
         <!-- Messages -->
         <div id="messagesContainer" class="flex-1 overflow-y-auto p-8 space-y-6">
-
             {% if messages %}
                 {% for msg in messages %}
-                <div class="flex gap-4 max-w-2xl message-enter
-                    {% if msg.username == username %} ml-auto flex-row-reverse {% endif %}">
-                    <div class="w-8 h-8 shrink-0 rounded-lg
-                        {% if msg.username == username %} bg-indigo-600 {% else %} bg-slate-800 {% endif %}
-                        flex items-center justify-center text-[10px] font-bold">
+                <div class="flex gap-4 max-w-2xl message-enter {% if msg.username == username %} ml-auto flex-row-reverse {% endif %}">
+                    <div class="w-8 h-8 shrink-0 rounded-lg {% if msg.username == username %} bg-indigo-600 {% else %} bg-slate-800 {% endif %} flex items-center justify-center text-[10px] font-bold">
                         {{ msg.username[:2].upper() }}
                     </div>
                     <div class="space-y-1 {% if msg.username == username %} text-right {% endif %}">
@@ -142,171 +139,163 @@
                             </span>
                             <span class="text-[10px] text-slate-500">{{ msg.created_at[11:16] }}</span>
                         </div>
-                        <div class="p-4 rounded-2xl border leading-relaxed text-sm
-                            {% if msg.username == username %}
-                                bg-indigo-600 rounded-tr-none text-white border-indigo-400/20 shadow-xl shadow-indigo-500/10
-                            {% else %}
-                                bg-slate-800/50 rounded-tl-none text-slate-300 border-slate-700/50
-                            {% endif %}">
+                        <div class="p-4 rounded-2xl border leading-relaxed text-sm {% if msg.username == username %} bg-indigo-600 rounded-tr-none text-white border-indigo-400/20 shadow-xl shadow-indigo-500/10 {% else %} bg-slate-800/50 rounded-tl-none text-slate-300 border-slate-700/50 {% endif %}">
                             {{ msg.content }}
                         </div>
                     </div>
                 </div>
                 {% endfor %}
-            {% else %}
-                <div class="flex flex-col items-center justify-center h-full text-slate-600 select-none">
-                    <i data-lucide="message-square-dashed" class="w-12 h-12 mb-4 opacity-30"></i>
-                    <p class="text-sm">Aucun message pour l'instant</p>
-                    <p class="text-xs mt-1 opacity-60">Soyez le premier à écrire</p>
-                </div>
             {% endif %}
-
         </div>
 
-        <!-- Input -->
-        <div class="p-6 bg-[#0f172a]">
-            <div class="max-w-4xl mx-auto relative group">
-                <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-1000"></div>
-                <div id="inputBox" class="relative flex items-center gap-2 bg-[#1e293b] border border-slate-700 rounded-2xl p-2 pr-3 transition-all duration-300">
-                    <input id="messageInput" type="text"
-                        placeholder="Envoyer un message sécurisé..."
-                        class="flex-1 bg-transparent border-none outline-none text-sm text-slate-200 placeholder:text-slate-500 py-3 px-2"
-                        onkeydown="handleKey(event)">
-                    <div class="flex items-center gap-2">
-                        <span id="ghostIndicator" class="hidden text-[10px] text-purple-400 font-bold uppercase tracking-wider px-2 py-1 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                            👻 Ghost
-                        </span>
-                        <button onclick="sendMessage()"
-                            class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/20">
-                            <span>Envoyer</span>
-                            <i data-lucide="send" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
+        <!-- Input Area -->
+        <div class="p-6 bg-[#0f172a] border-t border-slate-800">
+            <div id="inputWrapper" class="flex items-center gap-3 bg-slate-900/50 border border-slate-800 rounded-2xl p-2 transition-all duration-300">
+                <input type="text" id="messageInput" placeholder="Écrire un message..." onkeypress="handleKeyPress(event)"
+                    class="flex-1 bg-transparent border-0 outline-none px-4 py-2 text-sm text-white placeholder-slate-500">
+                <button onclick="sendMessage()" class="w-10 h-10 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center transition shadow-lg shadow-indigo-500/10">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
             </div>
-            <p class="text-center text-[10px] text-slate-700 mt-4 uppercase tracking-widest">
-                Zone de transmission sécurisée — AES Fernet
-            </p>
         </div>
-
     </main>
 </div>
 
+<!-- Container HTML pour les Notifications Toast (Tailwind) -->
+<div class="fixed bottom-6 right-6 z-50 flex flex-col gap-4 pointer-events-none w-80">
+    <div id="novaToast" class="transform translate-y-12 opacity-0 pointer-events-auto bg-slate-900 border border-slate-800 p-4 rounded-xl flex gap-3 shadow-2xl transition-all duration-300 ease-out">
+        <div class="w-8 h-8 shrink-0 bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 rounded-lg flex items-center justify-center">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+            <p id="toastTitle" class="text-xs font-bold text-white truncate">Notification</p>
+            <p id="toastMessage" class="text-[11px] text-slate-400 mt-0.5 line-clamp-2"></p>
+        </div>
+        <button onclick="closeToast()" class="text-slate-500 hover:text-white h-fit p-0.5 transition">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+    </div>
+</div>
+
 <script>
+    // Initialisation des icônes Lucide de base
     lucide.createIcons();
 
-    const groupId = parseInt("{{ group_id }}");
-    const username = "{{ username }}";
-    let ghostMode = false;
+    let isGhostMode = false;
+    const currentUsername = "{{ username }}";
 
-    // Scroll to bottom
-    const container = document.getElementById('messagesContainer');
-    container.scrollTop = container.scrollHeight;
+    // 1. UNIQUE INITIALISATION DE PUSHER (Ligne 299 d'origine)
+    const pusher = new Pusher('58f00fbf19aaa60d13f6', {
+        cluster: 'eu'
+    });
 
-    // Ghost Mode
+    // Canal d'écoute principal pour la messagerie instantanée
+    const chatChannel = pusher.subscribe("group-{{ group_id }}");
+    chatChannel.bind('new-message', function(data) {
+        appendMessage(data);
+    });
+
+    // 2. ABONNEMENT AU CANAL DES NOTIFICATIONS (Sans redéclarer pusher)
+    const notificationChannel = pusher.subscribe('nova-channel');
+    notificationChannel.bind('new-message-event', function(data) {
+        // On n'affiche le toast que si le message vient de quelqu'un d'autre
+        if (!data.title.includes(currentUsername)) {
+            showToast(data.title, data.message);
+        }
+    });
+
+    function showToast(title, message) {
+        document.getElementById('toastTitle').innerText = title;
+        document.getElementById('toastMessage').innerText = message;
+        
+        const toast = document.getElementById('novaToast');
+        toast.classList.remove('translate-y-12', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+
+        setTimeout(closeToast, 5000);
+    }
+
+    function closeToast() {
+        const toast = document.getElementById('novaToast');
+        if (toast) {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-12', 'opacity-0');
+        }
+    }
+
     function toggleGhost() {
-        ghostMode = !ghostMode;
+        isGhostMode = !isGhostMode;
         const btn = document.getElementById('ghostBtn');
         const label = document.getElementById('ghostLabel');
-        const indicator = document.getElementById('ghostIndicator');
-        const inputBox = document.getElementById('inputBox');
+        const wrapper = document.getElementById('inputWrapper');
 
-        if (ghostMode) {
-            btn.classList.add('border-purple-500', 'text-purple-400', 'bg-purple-500/10');
-            btn.classList.remove('text-slate-400', 'border-slate-700');
-            label.textContent = 'Ghost On';
-            indicator.classList.remove('hidden');
-            inputBox.classList.add('ghost-active');
+        if (isGhostMode) {
+            btn.classList.replace('text-slate-400', 'text-purple-400');
+            btn.classList.replace('border-slate-700', 'border-purple-500');
+            btn.classList.add('bg-purple-500/10');
+            label.innerText = "Ghost On";
+            wrapper.classList.add('ghost-active');
         } else {
-            btn.classList.remove('border-purple-500', 'text-purple-400', 'bg-purple-500/10');
-            btn.classList.add('text-slate-400', 'border-slate-700');
-            label.textContent = 'Ghost Off';
-            indicator.classList.add('hidden');
-            inputBox.classList.remove('ghost-active');
+            btn.classList.replace('text-purple-400', 'text-slate-400');
+            btn.classList.replace('border-purple-500', 'border-slate-700');
+            btn.classList.remove('bg-purple-500/10');
+            label.innerText = "Ghost Off";
+            wrapper.classList.remove('ghost-active');
         }
     }
 
-    // Panic button
-    function clearChat() {
-        if (confirm('⚠️ Vider l\'affichage du chat ?')) {
-            container.innerHTML = `
-                <div class="flex flex-col items-center justify-center h-full text-slate-600 select-none">
-                    <p class="text-sm">Chat effacé localement.</p>
-                </div>`;
-        }
-    }
-
-    // Enter key
-    function handleKey(e) {
+    function handleKeyPress(e) {
         if (e.key === 'Enter') sendMessage();
     }
 
-    // Send message
-    async function sendMessage() {
+    function sendMessage() {
         const input = document.getElementById('messageInput');
         const content = input.value.trim();
         if (!content) return;
 
         input.value = '';
 
-        const res = await fetch('/message/send', {
+        fetch('/message/send', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ group_id: groupId, content: content, ghost: ghostMode })
+            body: JSON.stringify({
+                group_id: "{{ group_id }}",
+                content: content,
+                ghost: isGhostMode
+            })
         });
-
-        const data = await res.json();
-        if (data.status === 'ok') {
-            appendMessage(username, content, ghostMode);
-        }
     }
 
-    // Append message to DOM
-    function appendMessage(user, content, ghost=false) {
-        const isMe = user === username;
-        const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-
-        const div = document.createElement('div');
-        div.className = `flex gap-4 max-w-2xl message-enter ${isMe ? 'ml-auto flex-row-reverse' : ''}`;
-        div.innerHTML = `
-            <div class="w-8 h-8 shrink-0 rounded-lg ${isMe ? 'bg-indigo-600' : 'bg-slate-800'} flex items-center justify-center text-[10px] font-bold">
-                ${user.substring(0,2).toUpperCase()}
+    function appendMessage(data) {
+        const container = document.getElementById('messagesContainer');
+        const isMe = data.username === currentUsername;
+        
+        const msgHtml = `
+            <div class="flex gap-4 max-w-2xl message-enter ${isMe ? 'ml-auto flex-row-reverse' : ''}">
+                <div class="w-8 h-8 shrink-0 rounded-lg ${isMe ? 'bg-indigo-600' : 'bg-slate-800'} flex items-center justify-center text-[10px] font-bold">
+                    ${data.username.slice(0, 2).toUpperCase()}
+                </div>
+                <div class="space-y-1 ${isMe ? 'text-right' : ''}">
+                    <div class="flex items-center gap-2 ${isMe ? 'justify-end' : ''}">
+                        <span class="text-xs font-bold ${isMe ? 'text-indigo-400' : 'text-slate-300'}">
+                            ${isMe ? 'Vous' : data.username}
+                        </span>
+                        <span class="text-[10px] text-slate-500">À l'instant</span>
+                    </div>
+                    <div class="p-4 rounded-2xl border leading-relaxed text-sm ${data.ghost ? 'border-purple-500/30 bg-purple-950/20 text-purple-200' : isMe ? 'bg-indigo-600 rounded-tr-none text-white border-indigo-400/20' : 'bg-slate-800/50 rounded-tl-none text-slate-300 border-slate-700/50'}">
+                        ${data.content}
+                    </div>
+                </div>
             </div>
-            <div class="space-y-1 ${isMe ? 'text-right' : ''}">
-                <div class="flex items-center gap-2 ${isMe ? 'justify-end' : ''}">
-                    <span class="text-xs font-bold ${isMe ? 'text-indigo-400' : 'text-slate-300'}">${isMe ? 'Vous' : user}</span>
-                    <span class="text-[10px] text-slate-500">${time}</span>
-                    ${ghost ? '<span class="text-[10px] text-purple-400">👻</span>' : ''}
-                </div>
-                <div class="p-4 rounded-2xl border leading-relaxed text-sm ${isMe
-                    ? 'bg-indigo-600 rounded-tr-none text-white border-indigo-400/20 shadow-xl shadow-indigo-500/10'
-                    : 'bg-slate-800/50 rounded-tl-none text-slate-300 border-slate-700/50'}">
-                    ${content}
-                </div>
-            </div>`;
-
-        // Remove empty state if present
-        const empty = container.querySelector('.justify-center');
-        if (empty) empty.remove();
-
-        container.appendChild(div);
+        `;
+        
+        container.insertAdjacentHTML('beforeend', msgHtml);
         container.scrollTop = container.scrollHeight;
     }
-</script>
-<!-- Pusher SDK -->
-<script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
-<script>
-    const pusher = new Pusher('58f00fbf19aaa60d13f6', {
-        cluster: 'eu'
-    });
 
-    const channel = pusher.subscribe(`group-${groupId}`);
-
-    channel.bind('new-message', function(data) {
-        if (data.username !== username) {
-            appendMessage(data.username, data.content, data.ghost);
-        }
-    });
+    function clearChat() {
+        document.getElementById('messagesContainer').innerHTML = '';
+    }
 </script>
 </body>
 </html>

@@ -19,7 +19,7 @@ def send():
 
     save_message(group_id, session['user_id'], content, is_ghost=ghost)
 
-    # Déclencher l'événement Pusher
+    # 1. Déclencher la mise à jour du chat en temps réel (Votre code existant)
     pusher_client.trigger(
         f'group-{group_id}',
         'new-message',
@@ -29,6 +29,19 @@ def send():
             'ghost': ghost
         }
     )
+
+    # 2. DÉCLENCHER LA NOTIFICATION VISUELLE GLOBALE (Ajout dynamique)
+    try:
+        pusher_client.trigger(
+            'nova-channel', 
+            'new-message-event', 
+            {
+                'title': f"📩 Message de {session['username']}",
+                'message': content if not ghost else "👻 Un message fantôme a été partagé."
+            }
+        )
+    except Exception as e:
+        print(f"Erreur Pusher passée en silence : {e}")
 
     return jsonify({
         'status': 'ok',

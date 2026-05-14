@@ -157,6 +157,48 @@
             </form>
         </div>
     </div>
+    <!-- Script requis pour écouter le serveur Pusher -->
+<script src="pusher.com"></script>
+
+<!-- Structure HTML de la bulle de notification (Toast) -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+  <div id="novaToast" class="toast hide text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.3s ease;">
+    <div class="toast-header bg-primary text-white" style="border-top-left-radius: 8px; border-top-right-radius: 8px;">
+      <strong class="me-auto" id="toastTitle">🔔 Notification</strong>
+      <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="document.getElementById('novaToast').classList.replace('show', 'hide')"></button>
+    </div>
+    <div class="toast-body" id="toastMessage" style="padding: 12px;"></div>
+  </div>
+</div>
+
+<!-- Script JavaScript d'affichage dynamique -->
+<script>
+  // Connexion au service Pusher
+  const pusher = new Pusher('58f00fbf19aaa60d13f6', {
+    cluster: 'eu'
+  });
+
+  // Écoute du canal et de l'événement configurés sur Flask
+  const channel = pusher.subscribe('nova-channel');
+  
+  channel.bind('new-message-event', function(data) {
+    // Remplissage des textes du Toast
+    document.getElementById('toastTitle').innerText = data.title;
+    document.getElementById('toastMessage').innerText = data.message;
+
+    // Affichage visuel du Toast à l'écran
+    const toastElement = document.getElementById('novaToast');
+    toastElement.classList.remove('hide');
+    toastElement.classList.add('show');
+
+    // Disparition automatique après 5 secondes
+    setTimeout(() => {
+      toastElement.classList.remove('show');
+      toastElement.classList.add('hide');
+    }, 5000);
+  });
+</script>
+
 
 </body>
 </html>
