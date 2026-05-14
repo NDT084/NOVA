@@ -1,6 +1,6 @@
 from app import create_app
-from run import app
 
+# Vercel cherchera cette variable globale "app" pour lancer le serveur
 app = create_app()
 
 if __name__ == '__main__':
